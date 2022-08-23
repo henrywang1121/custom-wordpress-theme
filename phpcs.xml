@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<ruleset name="custom WordPress" namespace="custom\CS\Standard">
+    <config name="installed_paths" value="../../wp-coding-standards/wpcs" />
+    <rule ref="WordPress"></rule>
+</ruleset>

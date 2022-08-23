@@ -1,0 +1,62 @@
+@use 'sass:math';
+
+// Rem output with px fallback
+@function rem($size) {
+  $remSize: math.div($size, 16);
+  @return #{$remSize}rem;
+}
+
+@function between($from, $to, $fromWidth, $toWidth) {
+  $slope: ($to - $from) / ($toWidth - $fromWidth);
+  $base: $from - $slope * $fromWidth;
+  @return calc(#{$base} + #{100vw * $slope});
+}
+
+@function strip-unit($number) {
+  @if type-of($number) == 'number' and not unitless($number) {
+    @return $number / ($number * 0 + 1);
+  }
+
+  @return $number;
+}
+
+@function percent-between($from, $to, $fromWidth, $toWidth) {
+  $from: strip-unit($from);
+  $to: strip-unit($to);
+  $fromWidth: strip-unit($fromWidth);
+  $toWidth: strip-unit($toWidth);
+  $slope: ($to - $from) / ($toWidth - $fromWidth);
+  @return calc((#{$slope} * (100vw - #{$fromWidth}px)) + #{$from});
+
+  // examples:
+  // $from = 115;
+  // $to = 100;
+  // $fromWidth = 320;
+  // $toWidth = 575;
+  // $slope = (100 - 115) / (575 - 320);
+  // $slope = -15 / 255;
+  // $slope = -0.058823529411765;
+  // $pixels = ((-0.058823529411765 * ($desiredWidth - 320)) + 115) * $desiredWidth;
+
+  // let $desiredWidth = 320;
+  // $pixels = ((-0.058823529411765 * (320 - 320)) + 115) * 320;
+  // $pixels = 115 * 320;
+  // vw * -(115/vw)
+
+  // let $desiredWidth = 575;
+  // $pixels = ((-0.058823529411765 * (575 - 320)) + 115) * 575;
+  // $pixels = 100 * 575;
+}
+
+// Fluid Typography mixin requires the calc-interpolation function which can also be used independently
+@function calc-interpolation($min-screen, $min-value, $max-screen, $max-value) {
+  $a: ($max-value - $min-value) / ($max-screen - $min-screen);
+  $b: $min-value - $a * $min-screen;
+
+  $sign: '+';
+  @if ($b < 0) {
+    $sign: '-';
+    $b: abs($b);
+  }
+  @return calc(#{$a * 100}vw #{$sign} #{$b});
+}
